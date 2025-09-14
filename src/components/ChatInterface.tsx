@@ -41,24 +41,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user }) => {
 
   const createRoom = async (name: string, description?: string) => {
     try {
-      // First get the user's profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('chat_rooms')
         .insert([{ 
           name, 
           description,
-          created_by: profile.id
+          created_by: user.id
         }])
         .select()
         .single();
