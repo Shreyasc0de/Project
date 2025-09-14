@@ -40,10 +40,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (roomName.trim()) {
-      await onCreateRoom(roomName.trim(), roomDescription.trim() || undefined);
-      setRoomName('');
-      setRoomDescription('');
-      setShowCreateRoom(false);
+      try {
+        await onCreateRoom(roomName.trim(), roomDescription.trim() || undefined);
+        setRoomName('');
+        setRoomDescription('');
+        setShowCreateRoom(false);
+      } catch (error) {
+        console.error('Error creating room:', error);
+        // Error handling is now done in the parent component
+      }
     }
   };
 

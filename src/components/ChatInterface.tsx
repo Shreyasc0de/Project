@@ -40,15 +40,42 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ user }) => {
   };
 
   const createRoom = async (name: string, description?: string) => {
-    const { data, error } = await supabase
-      .from('chat_rooms')
-      .insert([{ name, description }])
-      .select()
-      .single();
+    try {
+      // First get the user's profile ID
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
 
-    if (!error && data) {
-      setRooms(prev => [...prev, data]);
-      setActiveRoom(data);
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('chat_rooms')
+        .insert([{ 
+          name, 
+          description,
+          created_by: profile.id
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating room:', error);
+        alert(`Failed to create room: ${error.message}`);
+        return;
+      }
+
+      if (data) {
+        setRooms(prev => [...prev, data]);
+        setActiveRoom(data);
+      }
+    } catch (error) {
+      console.error('Unexpected error creating room:', error);
+      alert('An unexpected error occurred while creating the room');
     }
   };
 
